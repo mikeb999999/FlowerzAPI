@@ -1,0 +1,6 @@
+@FlowerzAPI_HostAddress = http://localhost:5072
+
+GET {{FlowerzAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
