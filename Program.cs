@@ -5,6 +5,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//////////////// foll. not in weather forecast app code ////////////////
+//Register the services
+//this.RegisterDependencies(services);
+
+//Configure controllers and views
+//builder.Services.AddControllersWithViews()
+//    .AddViewLocalization()
+//    .AddDataAnnotationsLocalization();
+builder.Services.AddControllers();
+///////////////////////////////////////////////////////////////////////
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -12,9 +23,19 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    /////////////////
+    app.UseDeveloperExceptionPage();
+    /////////////////
 }
 
 app.UseHttpsRedirection();
+
+/////////////////
+app.UseRouting();
+app.UseEndpoints(endpoints => { _ = endpoints.MapControllers(); });
+
+
+/////////////////
 
 var summaries = new[]
 {
@@ -23,7 +44,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
