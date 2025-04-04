@@ -105,8 +105,8 @@ namespace FlowerzAPI.Controllers
             blooms.Remove(bloomToDelete);
 
             //return data;
-            return NoContent();  // resource has been deleted, no additional info required
-                                 // TODO it needs to be documented, how?
+            Response.Headers.Append("Documentation|Description|Message", $"Bloom {id} successfully deleted");
+            return NoContent( );  // resource has been deleted, no additional info required
         }
     }
 }
