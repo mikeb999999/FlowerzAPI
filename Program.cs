@@ -1,6 +1,28 @@
+using Flowerz.DataContext.InMem;
+using Flowerz.EntityModels;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
+//builder.Services.AddFlowerzContext(); // in FlowerzContextExtensions !
+
+//builder.Services.AddDbContext<FlowerzContext>(options =>
+//    options.UseInMemoryDatabase("InMemoryDb"));
+
+var options = new DbContextOptionsBuilder()
+    .UseInMemoryDatabase(databaseName: "Test")
+.Options;
+
+using (var context = new FlowerzContext(options))
+{
+    var bloom = new Bloom { Name = "flower1" };
+    context.Blooms.Add(bloom);
+    context.SaveChanges();
+}
+// .
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -54,8 +76,7 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 })
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+.WithName("GetWeatherForecast");
 
 app.Run();
 

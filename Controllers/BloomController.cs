@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using FlowerzAPI.Models;
+using Flowerz.DataContext.InMem;
 //using CustomerAPI.Services;
 
 namespace FlowerzAPI.Controllers
@@ -9,11 +10,17 @@ namespace FlowerzAPI.Controllers
     public class BloomController : ControllerBase
     {
         //Define the variables
-       // private readonly ICustomerService _customerService;
+        // private readonly ICustomerService _customerService;
+
+        //Define the local variables
+        private FlowerzContext _context; // Temp! will be moved to repository layer
 
         /// <summary> Constructor </summary>
-        public BloomController()//(ICustomerService customerService)
+        public BloomController(
+            FlowerzContext context
+            )//(ICustomerService customerService)
         {
+            _context = context;
            // _customerService = customerService;
          }
 
