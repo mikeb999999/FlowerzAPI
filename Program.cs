@@ -1,31 +1,64 @@
-using Flowerz.DataContext.InMem;
-using Flowerz.EntityModels;
+//using Flowerz.EntityModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.InMemory;
-
+using Flowerz.DataContexts;
+using Flowerz.EntityModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
-//builder.Services.AddFlowerzContext(); // in FlowerzContextExtensions !
-
-//builder.Services.AddDbContext<FlowerzContext>(options =>
-//    options.UseInMemoryDatabase("InMemoryDb"));
-
-var options = new DbContextOptionsBuilder()
-    .UseInMemoryDatabase(databaseName: "Test")
-.Options;
-
-using (var context = new FlowerzContext(options))
-{
-    var bloom = new Bloom { Name = "flower1" };
-    context.Blooms.Add(bloom);
-    context.SaveChanges();
-}
-// .
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers();
+
+//*** from Brave AI search (.net core ef 9 in memory example di in program.cs)
+// Register the DbContext with the in-memory database
+builder.Services.AddDbContext<FlowerzContext>(options =>
+    options.UseInMemoryDatabase("InMemoryDatabase"));
+
+var app = builder.Build();
+
+// Seed data into the in-memory database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<FlowerzContext>();
+    // Seed data here
+    var bloom0 = new Bloom()
+    {
+        Id = 1, Name = "Meconopsis " + Guid.NewGuid().ToString(), Description = ""
+    };
+    context.Blooms.Add(bloom0);
+    context.Blooms.Add(new Bloom() { Id = 2, Name = "Antirrhinum " + Guid.NewGuid().ToString(), Description = "" });
+    context.SaveChanges();
+}//*** ends
+
+////app.MapGet("/", () => "Hello World!");
+
+////app.Run();
+
+////var builder = WebApplication.CreateBuilder(args);
+
+////// Add services to the container
+//////builder.Services.AddFlowerzContext(); // in FlowerzContextExtensions !
+
+//////builder.Services.AddDbContext<FlowerzContext>(options =>
+//////    options.UseInMemoryDatabase("InMemoryDb"));
+
+////var options = new DbContextOptionsBuilder()
+////    .UseInMemoryDatabase(databaseName: "Test")
+////.Options;
+
+////using (var context = new FlowerzContext(options))
+////{
+////    var bloom = new Bloom { Name = "flower1" };
+////    context.Blooms.Add(bloom);
+////    context.SaveChanges();
+////}
+// .
+////////////// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+////////////builder.Services.AddEndpointsApiExplorer();
+////////////builder.Services.AddSwaggerGen();
 
 //////////////// foll. not in weather forecast app code ////////////////
 //Register the services
@@ -35,10 +68,10 @@ builder.Services.AddSwaggerGen();
 //builder.Services.AddControllersWithViews()
 //    .AddViewLocalization()
 //    .AddDataAnnotationsLocalization();
-builder.Services.AddControllers();
+////////////builder.Services.AddControllers();
 ///////////////////////////////////////////////////////////////////////
 
-var app = builder.Build();
+//// var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

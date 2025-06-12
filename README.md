@@ -1,3 +1,3 @@
 # FlowerzAPI
 
-A C# .Net RESTful API
+A C# .Net 9.0 (Core) RESTful API

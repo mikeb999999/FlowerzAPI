@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using FlowerzAPI.Models;
-using Flowerz.DataContext.InMem;
-//using CustomerAPI.Services;
+using Flowerz.DataContexts;
+using Flowerz.EntityModels;
 
 namespace FlowerzAPI.Controllers
 {
@@ -10,7 +9,7 @@ namespace FlowerzAPI.Controllers
     public class BloomController : ControllerBase
     {
         //Define the variables
-        // private readonly ICustomerService _customerService;
+        // private readonly IBloomService _bloomService;
 
         //Define the local variables
         private FlowerzContext _context; // Temp! will be moved to repository layer
@@ -18,17 +17,11 @@ namespace FlowerzAPI.Controllers
         /// <summary> Constructor </summary>
         public BloomController(
             FlowerzContext context
-            )//(ICustomerService customerService)
+            )//(IBloomService bloomService)
         {
             _context = context;
-           // _customerService = customerService;
+           // _bloomService = bloomService;
          }
-
-        // Temp until repo layer & EF added
-        public static  List<Bloom> blooms = new List<Bloom>
-        {
-            new Bloom (1, "Sunflower", ""), new Bloom (2, "Nasturtium", "")
-        };
 
         //GET       ->  /Bloom                 -> Gets all available blooms
         //GET       ->  /Bloom/{id}            -> Gets the requested bloom
@@ -41,8 +34,9 @@ namespace FlowerzAPI.Controllers
         //public ActionResult<IEnumerable<Bloom>> GetBlooms()  // strongly typed/less flexible....
         public IActionResult GetBlooms()
         {
-            //var data = await _customerService.GetBlooms(); //  TODO !
+            //var data = await _bloomService.GetBlooms(); //  TODO !
             //return data;
+            var blooms = _context.Blooms;
             return Ok(blooms);
         }
 
@@ -50,7 +44,7 @@ namespace FlowerzAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult GetBloom(int id)
         {
-            var bloom = blooms.FirstOrDefault(b => b.Id == id);  
+            var bloom = _context.Blooms.FirstOrDefault(b => b.Id == id);  
             if (bloom == null)
                 return NotFound($"Bloom does not exist for id {id}");
             //return data;
@@ -66,10 +60,10 @@ namespace FlowerzAPI.Controllers
             if (bloom.Id != 0)
                 return BadRequest("Id must be 0 when creating a bloom");
 
-            var maxId = blooms.Max(b  => b.Id);
-            // var newBloom = new Bloom {  Id=maxId + 1, Name=bloom.Name, Description=bloom.Description };
-            var newBloom = new Bloom(maxId + 1, bloom.Name, bloom.Description);
-            blooms.Add(newBloom);
+            var maxId = _context.Blooms.Max(b  => b.Id);
+            var newBloom = new Bloom() { Id = maxId + 1, Name = bloom.Name, Description = bloom.Description };
+            _context.Blooms.Add(newBloom);
+            _context.SaveChanges();
             //return data;
             return Ok(newBloom);
         }
@@ -85,17 +79,16 @@ namespace FlowerzAPI.Controllers
             if (bloom.Id != id)
                 return BadRequest("A bloom's id cannot be changed");
 
-            var bloomToChange = blooms.FirstOrDefault(b => b.Id == id);
+            var bloomToChange = _context.Blooms.FirstOrDefault(b => b.Id == id);
             if (bloomToChange == null)
                 return NotFound($"Bloom does not exist for id {id}");
 
-            var changedBloom = new  Bloom(id, bloom.Name, bloom.Description);
-            // bloomToChange.Name = bloom.Name; can't do this as record is immutable
-            var newBloom = new Bloom(id, bloom.Name, bloom.Description);
-            blooms.Remove(bloomToChange);
-            blooms.Add(newBloom);
+            bloomToChange.Name = bloom.Name;
+            bloomToChange.Description = bloom.Description;
+            _context.Blooms.Update(bloomToChange);
+            _context.SaveChanges();
             //return data;
-            return Ok(newBloom);
+            return Ok(bloomToChange);
         }
 
         //DELETE a bloom  
@@ -105,11 +98,12 @@ namespace FlowerzAPI.Controllers
             if (id <= 0)
                 return BadRequest("Id must be specified for a bloom to be deleted");
 
-            var bloomToDelete = blooms.FirstOrDefault(b => b.Id == id);
+            var bloomToDelete = _context.Blooms.FirstOrDefault(b => b.Id == id);
             if (bloomToDelete == null)
                 return NotFound($"Bloom does not exist for id {id}");
 
-            blooms.Remove(bloomToDelete);
+            _context.Blooms.Remove(bloomToDelete);
+            _context.SaveChanges(); 
 
             //return data;
             Response.Headers.Append("Documentation|Description|Message", $"Bloom {id} successfully deleted");
