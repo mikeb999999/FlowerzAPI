@@ -24,74 +24,27 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<FlowerzContext>();
     // Seed data here
-    var bloom0 = new Bloom()
-    {
-        Id = 1, Name = "Meconopsis " + Guid.NewGuid().ToString(), Description = ""
-    };
-    context.Blooms.Add(bloom0);
-    context.Blooms.Add(new Bloom() { Id = 2, Name = "Antirrhinum " + Guid.NewGuid().ToString(), Description = "" });
+    context.Blooms.Add(new Bloom() { Id = 1, Name = "Meconopsis " + Guid.NewGuid().ToString(), Description = "Poppies e.g. blue, welsh" });
+    context.Blooms.Add(new Bloom() { Id = 2, Name = "Antirrhinum " + Guid.NewGuid().ToString(), Description = "Snapdragons" });
     context.SaveChanges();
-}//*** ends
-
-////app.MapGet("/", () => "Hello World!");
-
-////app.Run();
-
-////var builder = WebApplication.CreateBuilder(args);
-
-////// Add services to the container
-//////builder.Services.AddFlowerzContext(); // in FlowerzContextExtensions !
-
-//////builder.Services.AddDbContext<FlowerzContext>(options =>
-//////    options.UseInMemoryDatabase("InMemoryDb"));
-
-////var options = new DbContextOptionsBuilder()
-////    .UseInMemoryDatabase(databaseName: "Test")
-////.Options;
-
-////using (var context = new FlowerzContext(options))
-////{
-////    var bloom = new Bloom { Name = "flower1" };
-////    context.Blooms.Add(bloom);
-////    context.SaveChanges();
-////}
-// .
-////////////// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-////////////builder.Services.AddEndpointsApiExplorer();
-////////////builder.Services.AddSwaggerGen();
-
-//////////////// foll. not in weather forecast app code ////////////////
-//Register the services
-//this.RegisterDependencies(services);
-
-//Configure controllers and views
-//builder.Services.AddControllersWithViews()
-//    .AddViewLocalization()
-//    .AddDataAnnotationsLocalization();
-////////////builder.Services.AddControllers();
-///////////////////////////////////////////////////////////////////////
-
-//// var app = builder.Build();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    /////////////////
+
     app.UseDeveloperExceptionPage();
-    /////////////////
 }
 
 app.UseHttpsRedirection();
 
-/////////////////
 app.UseRouting();
 app.UseEndpoints(endpoints => { _ = endpoints.MapControllers(); });
 
 
 /////////////////
-
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
