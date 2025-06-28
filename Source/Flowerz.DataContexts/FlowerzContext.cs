@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 //using Flowerz.DataContext.SqlServer;
 ////using Microsoft.Data.SqlClient; // To use SqlConnectionStringBuilder.
-using Flowerz.EntityModels;
+//using Flowerz.EntityModels;
 
 namespace Flowerz.DataContexts;
 
@@ -16,7 +14,7 @@ public partial class FlowerzContext : DbContext
         : base(options)
     { }
 
-   public virtual DbSet<Bloom> Blooms { get; set; }
+   public virtual DbSet<Flowerz.Persistence.Entities.Bloom> Blooms { get; set; }
 
 
     //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

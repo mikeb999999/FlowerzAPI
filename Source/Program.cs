@@ -1,7 +1,7 @@
-//using Flowerz.EntityModels;
 using Microsoft.EntityFrameworkCore;
 using Flowerz.DataContexts;
-using Flowerz.EntityModels;
+using Flowerz.Persistence.Entities;
+using FlowerzAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,11 +10,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers();
+builder.Services.AddTransient<IBloomService, BloomService>();
 
 //*** from Brave AI search (.net core ef 9 in memory example di in program.cs)
 // Register the DbContext with the in-memory database
 builder.Services.AddDbContext<FlowerzContext>(options =>
     options.UseInMemoryDatabase("InMemoryDatabase"));
+
+//Register auto-mapper (needs AutoMapper extensions for Microsoft.Extensions.DependencyInjection....)
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
