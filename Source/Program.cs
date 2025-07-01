@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Flowerz.DataContexts;
 using Flowerz.Persistence.Entities;
 using FlowerzAPI.Services;
+using FlowerzAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers();
 builder.Services.AddTransient<IBloomService, BloomService>();
+builder.Services.AddTransient<IBloomRepository, BloomRepository>();
 
 //*** from Brave AI search (.net core ef 9 in memory example di in program.cs)
 // Register the DbContext with the in-memory database

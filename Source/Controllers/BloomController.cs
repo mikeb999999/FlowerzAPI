@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Flowerz.Models;
 using FlowerzAPI.Services;
+using System.ComponentModel.DataAnnotations;
+using FlowerzAPI.Flowerz.Models.Exceptions;
 
 namespace FlowerzAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    /// Process HTTP requests and return HTTP responses (services deal with business logic, repos with DB Access)
+    /// 
     /// My controllers are based on "A base class for an MVC controller without view support" as opposed to 'Controller' 
     /// base class which has view support...
     public class BloomController : ControllerBase
@@ -34,39 +38,95 @@ namespace FlowerzAPI.Controllers
             return Ok(data);
         }
 
-        //GET the requested bloom  
+        //GET the requested bloom by id  
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBloom(int id)
         {
-            var bloom = await _bloomService.GetBloom(id);
+            try
+            {
+                var bloom = await _bloomService.GetBloom(id);
 
-            //return data;
-            return Ok(bloom);
+                //return data;
+                return Ok(bloom);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                //Return a 404 bad request
+                return this.NotFound(ex.Message + "\n" + ex.StackTrace);
+            }
+            catch (Exception ex)
+            {
+                //Return an internal error
+                return Problem("An internal server error occurred (" + ex.Message + "\n" + ex.StackTrace + ").", statusCode: 500);
+            }
         }
 
         //POST create a bloom  
         [HttpPost]
-        public async Task<IActionResult> PostBloom([FromBody] Bloom bloom)
+        public async Task<IActionResult> CreateBloom([FromBody] Bloom bloom)
         {
-            return Ok(bloom);
-            //if (bloom == null)
-            //    return BadRequest("No bloom specified - can't create");
-            //if (bloom.Id != 0)
-            //    return BadRequest("Id must be 0 when creating a bloom");
+            try
+            {
+                //Validate the model
+                if (!this.ModelState.IsValid)
+                    throw new ValidationException("Validation error: " + this.ModelState);
 
-            //var maxId = _context.Blooms.Max(b => b.Id);
-            //var newBloom = new Bloom() { Id = maxId + 1, Name = bloom.Name, Description = bloom.Description };
-            //_context.Blooms.Add(newBloom);
-            //_context.SaveChanges();
-            ////return data;
-            //return Ok(newBloom);
+                var newBloom = await _bloomService.CreateBloom(bloom);
+
+                //return data;
+                return Ok(newBloom);
+            }
+            catch (ValidationException ex)
+            {
+                //Return a 400 bad request
+                return this.BadRequest(new ErrorInfo(ex));
+            }
+            catch (Exception ex)
+            {
+                //Return an internal error
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new ErrorInfo(ex));
+            }
         }
+        //{
+        //    var newBloom = await _bloomService.CreateBloom(bloom);
+        //    //if (bloom == null)
+        //    //    return BadRequest("No bloom specified - can't create");
+        //    //if (bloom.Id != 0)
+        //    //    return BadRequest("Id must be 0 when creating a bloom");
+
+        //    //var maxId = _context.Blooms.Max(b => b.Id);
+        //    //var newBloom = new Bloom() { Id = maxId + 1, Name = bloom.Name, Description = bloom.Description };
+        //    //_context.Blooms.Add(newBloom);
+        //    //_context.SaveChanges();
+        //    ////return data;
+        //    return Ok(newBloom);
+        //}
 
         //PUT update a bloom  
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBloom(int id, [FromBody] Bloom bloom)
+        public async Task<IActionResult> UpdateBloom(int id, [FromBody] Bloom bloom)
         {
-            return null;
+            try
+            {
+                //Validate the model
+                if (!this.ModelState.IsValid)
+                    throw new ValidationException("Validation error: " + this.ModelState);
+
+                var newBloom = await _bloomService.UpdateBloom(bloom);
+
+                //return data;
+                return Ok(newBloom);
+            }
+            catch (ValidationException ex)
+            {
+                //Return a 400 bad request
+                return this.BadRequest(ex.Message + "\n" + ex.StackTrace);
+            }
+            catch (Exception ex)
+            {
+                //Return an internal error
+                return Problem("An internal server error occurred (" + ex.Message + "\n" + ex.StackTrace + ").", statusCode: 500);
+            }
             //if (bloom == null)
             //    return BadRequest("No bloom specified - can't update");
             //if (id <= 0)

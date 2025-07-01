@@ -1,52 +1,67 @@
 ﻿using AutoMapper;
-using Flowerz.DataContexts;
 using Flowerz.Models;
+using FlowerzAPI.Repositories;
 
 namespace FlowerzAPI.Services;
 
-public class BloomService: IBloomService
+public class BloomService : IBloomService
 {
     //Define the local variables
-    private FlowerzContext _context; // Temp! will be moved to repository layer
+    private readonly IBloomRepository _blooms;
     private readonly IMapper _mapper;
 
     /// <summary> Constructor </summary>
     public BloomService(
-        FlowerzContext context,
-        IMapper mapper
-        )//(IBloomRepository blooms)
+        IBloomRepository blooms,
+        IMapper mapper )
     {
-        _context = context;
+        _blooms = blooms;
         _mapper = mapper;
-        // _blooms = blooms;
     }
 
-    /// <summary> Get all customers matching the filter criteria </summary>
+    /// <summary> Get the requested bloom by id  </summary>
     public async Task<List<Bloom>> GetBlooms()
     {
-        //Get the entities
-        var entities = _context.Blooms;
-
-        // var entities = await _blooms.GetBlooms();
+       var entities = await _blooms.GetBlooms();
 
         //Map the entity to a model
         return _mapper.Map<List<Bloom>>(entities);
     }
 
-    /// <summary> Get the first bloom matching the filter criteria </summary>
+    /// <summary> Get the requested bloom by id  </summary>
     public async Task<Bloom> GetBloom(long id)
 
     {
-        var bloom = _context.Blooms.FirstOrDefault(b => b.Id == id);
-        if (bloom == null)
+        var entity = await _blooms.GetBloom(id);
+        if (entity == null)
             throw new KeyNotFoundException($"Bloom does not exist for id {id}");
-        //....................   return NotFound($"Bloom does not exist for id {id}");
-        return _mapper.Map<Bloom>(bloom);
+        ;
+        return _mapper.Map<Bloom>(entity);
     }
 
     /// <summary> Create a new bloom </summary>
-    public async Task<Bloom> CreateBloom(Bloom model)
+    public async Task<Bloom> CreateBloom(Bloom bloom)
     { throw new NotImplementedException(); }
+    //{
+    //    // TODO use return values for errors, bad form to throw exceptions for it
+    //    if (bloom == null)
+    //       throw new ValidationException("No bloom specified - can't create");
+    //    if (bloom.Id != 0)
+    //        throw new ValidationException("Id must be 0 when creating a bloom");
+
+    //    //Generate a new entity 
+    //    var entity = _mapper.Map<Bloom>(bloom);
+
+    //    //Create the entity
+    //    entity = await _blooms.CreateCustomer(entity);
+
+    //    var maxId = _context.Blooms.Max(b => b.Id);
+    //    var newBloom = new Bloom() { Id = maxId + 1, Name = bloom.Name, Description = bloom.Description };
+    //    _context.Blooms.Add(newBloom);
+    //    _context.SaveChanges();
+    //    //return data;
+    //    return Ok(newBloom);
+    //}
 
     /// <summary> Update an existing bloom  </summary>
     public async Task<Bloom> UpdateBloom(Bloom model)

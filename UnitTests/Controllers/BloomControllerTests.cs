@@ -1,13 +1,10 @@
 using FlowerzAPI.Controllers;
-using Flowerz.DataContexts;
 using Flowerz.Models;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using FlowerzAPI.Services;
 using Moq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using UnitTests.Extensions;
 
 namespace UnitTests;
 
@@ -54,7 +51,7 @@ public class BloomControllerTests
         //Assert
         var okObjectResult = result as OkObjectResult;
         Assert.NotNull(okObjectResult);
-        Assert.Equal ((List<Bloom>)blooms, (List<Bloom>)okObjectResult.Value);
+        Assert.Equal((List<Bloom>)blooms, (List<Bloom>)okObjectResult.Value);
         mockService
             .Verify(x => x.GetBlooms(), Times.Once);
     }
@@ -82,17 +79,33 @@ public class BloomControllerTests
     }
 
     [Fact]
-    public async Task CreateShouldReturn1Bloom()
+    [Trait("Method", "CreateBloom")]
+    public async Task CreateBloom_InternalError()
+    {
+        // Arrange
+        var instance = new BloomController(null);
+        var bloom0 = new Bloom() { Id = 0, Name = "x", Description = "xxx" };
+        //Act
+        var result = await instance.CreateBloom(bloom0);
+        //Assert
+        result.AssertError(HttpStatusCode.InternalServerError, "Object reference not set to an instance of an object.");
+    }
+
+
+
+
+    [Fact]
+    [Trait("Method", "CreateBloom")]
+    public async Task CreateBloom_OK()
     {
         // Arrange
         var mockService = new Mock<IBloomService>();
         var instance = new BloomController(mockService.Object);
         var blooms = new List<Bloom>();
-        var bloom0 = new Bloom() { Id = 1, Name = "x", Description = "xxx" };
-        blooms.Add(new Bloom() { Id = 2, Name = "y", Description = "xxy" });
+        var bloom0 = new Bloom() { Id = 0, Name = "x", Description = "xxx" };
         mockService.Setup(x => x.CreateBloom(bloom0)).ReturnsAsync(bloom0);
         //Act
-        var result = await instance.PostBloom(bloom0);
+        var result = await instance.CreateBloom(bloom0);
         //Assert
         var okObjectResult = result as OkObjectResult;
         Assert.NotNull(okObjectResult);
